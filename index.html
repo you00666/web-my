@@ -1,28 +1,658 @@
-<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>我的专业导航 V2.0</title><style>
-:root{--bg:#f4f6fa;--card:#fff;--text:#172033;--muted:#718096;--line:#e6eaf0;--blue:#2563eb;--shadow:0 12px 35px #18243a12}*{box-sizing:border-box}body{margin:0;font-family:Segoe UI,Microsoft YaHei,Arial,sans-serif;color:var(--text);background:var(--bg)}body.dark{--bg:#0f172a;--card:#172033;--text:#eef2ff;--muted:#9aa7bd;--line:#2a3549;--shadow:0 12px 35px #0005}body.bg{background-size:cover;background-position:center;background-attachment:fixed}body.bg:before{content:"";position:fixed;inset:0;background:#0002;z-index:-1}.wrap{width:min(1200px,94%);margin:auto;padding:26px 0 50px}header{text-align:center;padding:20px}.logo{font-size:38px;font-weight:800}.sub{color:var(--muted);margin-top:6px}.toolbar,.search{display:flex;gap:9px;justify-content:center;flex-wrap:wrap;margin:15px auto}.btn,.search select,.search input,.field input,.field select{border:1px solid var(--line);background:var(--card);color:var(--text);border-radius:12px;padding:10px 13px}.btn{cursor:pointer}.primary{background:var(--blue);border-color:var(--blue);color:white}.search{max-width:900px}.search input{flex:1;min-width:240px;padding:14px}.search select{padding:0 10px}.info{text-align:center;color:var(--muted);font-size:13px;margin:15px}.cats{display:flex;gap:8px;overflow:auto;padding:8px 0 16px;justify-content:center}.cat.active{background:var(--blue);color:#fff}.section{margin:22px 0}.section h2{font-size:19px}.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(225px,1fr));gap:14px}.card{position:relative;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:17px;box-shadow:var(--shadow);transition:.18s;cursor:grab}.card:hover{transform:translateY(-3px)}.card.drag{opacity:.4}.top{display:flex;gap:12px;align-items:center}.icon{width:48px;height:48px;border-radius:13px;background:#2563eb14;display:grid;place-items:center;font-size:25px;overflow:hidden;flex:none}.icon img{width:100%;height:100%;object-fit:cover}.card h3{margin:0 0 5px;font-size:16px}.card p{margin:0;color:var(--muted);font-size:12px}.card a{color:inherit;text-decoration:none}.actions{display:flex;gap:6px;margin-top:14px}.actions button{font-size:12px;padding:6px 9px}.star{position:absolute;right:9px;top:8px;border:0;background:none;font-size:19px;cursor:pointer}.modal-bg{position:fixed;inset:0;background:#0008;display:none;align-items:center;justify-content:center;padding:18px;z-index:10}.modal-bg.show{display:flex}.modal{width:min(620px,100%);max-height:90vh;overflow:auto;background:var(--card);border-radius:20px;padding:24px;border:1px solid var(--line)}.field{margin:12px 0}.field label{display:block;color:var(--muted);font-size:13px;margin-bottom:6px}.field input,.field select{width:100%}.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:18px}.empty{text-align:center;color:var(--muted);padding:35px}.danger{color:#dc2626}.stat{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.stat div{padding:12px;border:1px solid var(--line);border-radius:12px}.stat b{display:block;font-size:20px}.stat span{font-size:12px;color:var(--muted)}@media(max-width:650px){.two,.stat{grid-template-columns:1fr 1fr}.grid{grid-template-columns:1fr 1fr}}@media(max-width:430px){.grid{grid-template-columns:1fr}}
-</style></head><body><div class="wrap"><header><div class="logo">🌐 我的专业导航</div><div class="sub">V2.0 · 外贸 · AI · 设计 · 工具 · 开发 · 学习</div><div class="toolbar"><button class="btn primary" onclick="addSite()">＋ 添加网站</button><button class="btn" onclick="manage()">⚙ 管理中心</button><button class="btn" onclick="toggleDark()">🌙 深色</button></div></header><div class="search"><select id="engine"><option value="https://www.google.com/search?q=">Google</option><option value="https://www.bing.com/search?q=">Bing</option><option value="https://www.baidu.com/s?wd=">百度</option><option value="https://duckduckgo.com/?q=">DuckDuckGo</option></select><input id="q" placeholder="搜索网站或输入关键词，按 Enter…"></div><div class="info"><span id="clock"></span>　|　<span id="weather">天气获取中…</span>　|　<span id="count"></span></div><div id="cats" class="cats"></div><main id="main"></main><footer class="info">数据保存在浏览器本地 · GitHub Pages 可直接部署</footer></div>
-<div id="siteModal" class="modal-bg"><div class="modal"><h2 id="siteTitle">添加网站</h2><div class="field"><label>网站名称</label><input id="name"></div><div class="field"><label>网址</label><input id="url" placeholder="https://example.com"></div><div class="two"><div class="field"><label>分类</label><select id="cat"></select></div><div class="field"><label>图标</label><input id="icon" placeholder="Emoji 或图片 URL；留空自动获取"></div></div><div class="field"><label>简介</label><input id="desc"></div><div class="modal-actions"><button class="btn" onclick="closeM()">取消</button><button class="btn primary" onclick="saveSite()">保存</button></div></div></div>
-<div id="manageModal" class="modal-bg"><div class="modal"><h2>⚙ 管理中心</h2><div class="stat"><div><b id="s1">0</b><span>网站</span></div><div><b id="s2">0</b><span>分类</span></div><div><b id="s3">0</b><span>收藏</span></div><div><b id="s4">0</b><span>自定义</span></div></div><div class="field"><label>新增分类</label><input id="newCat" placeholder="例如：供应商 / 常用工具"><button class="btn primary" style="margin-top:7px" onclick="newCat()">＋ 添加分类</button></div><div class="field"><label>网站数据备份</label><button class="btn" onclick="backup()">⬇ 导出 JSON</button> <button class="btn" onclick="document.getElementById('restore').click()">⬆ 导入 JSON</button><input id="restore" type="file" accept="application/json" hidden onchange="restore(event)"></div><div class="field"><label>背景图片 URL</label><input id="bg" placeholder="https://...jpg"><button class="btn primary" style="margin-top:7px" onclick="saveBg()">保存背景</button> <button class="btn" onclick="clearBg()">清除</button></div><div class="field"><label>本地背景图</label><input id="bgfile" type="file" accept="image/*"></div><div class="modal-actions"><button class="btn danger" onclick="resetAll()">恢复默认数据</button><button class="btn" onclick="closeManage()">关闭</button></div></div></div>
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>我的网址导航 V2.1</title>
+<style>
+:root {
+  --bg:#f3f6fb; --panel:#fff; --text:#172033;
+  --muted:#718096; --line:#e3e8f0; --accent:#356df3;
+}
+body.dark {
+  --bg:#101722; --panel:#1a2534; --text:#e8eef8;
+  --muted:#9aabc1; --line:#334155; --accent:#79a1ff;
+}
+* {box-sizing:border-box}
+body {
+  margin:0;background:var(--bg);color:var(--text);
+  font:15px/1.5 Arial,"Microsoft YaHei",sans-serif;
+}
+header {
+  padding:25px 5%;background:var(--panel);
+  border-bottom:1px solid var(--line);
+}
+.top,.toolbar,.actions {
+  display:flex;align-items:center;justify-content:space-between;
+  gap:10px;flex-wrap:wrap;
+}
+.brand {font-size:25px;font-weight:800}
+.muted {color:var(--muted);font-size:13px}
+.tools {display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+input,select,button {
+  font:inherit;padding:10px 12px;border-radius:9px;
+  border:1px solid var(--line);background:var(--panel);color:var(--text);
+}
+input {max-width:100%}
+button {cursor:pointer}
+button.primary {background:var(--accent);color:white;border-color:var(--accent)}
+#search {flex:1;min-width:180px}
+main {max-width:1400px;margin:auto;padding:24px 5% 60px}
+.chips {display:flex;gap:8px;flex-wrap:wrap;margin:18px 0}
+.chip {border-radius:30px;padding:7px 13px}
+.chip.active {background:var(--accent);color:white}
+.grid {
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));
+  gap:13px;
+}
+.card {
+  display:flex;align-items:center;gap:11px;padding:14px;
+  background:var(--panel);border:1px solid var(--line);
+  border-radius:14px;min-width:0;transition:.15s;
+}
+.card:hover {border-color:var(--accent);transform:translateY(-2px)}
+.card a {display:flex;align-items:center;gap:11px;flex:1;min-width:0;color:inherit;text-decoration:none}
+.ico {
+  width:42px;height:42px;flex-shrink:0;object-fit:contain;
+  border-radius:10px;background:#f0f3f8;padding:5px;
+}
+.emoji {display:grid;place-items:center;font-size:25px}
+.info {min-width:0}
+.name {font-weight:bold;overflow-wrap:anywhere}
+.desc {font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.star {border:0;background:transparent;padding:3px;color:#e8aa21;font-size:20px}
+.section {margin:24px 0}
+.section h2 {font-size:17px}
+.modal {
+  display:none;position:fixed;inset:0;background:#0009;z-index:20;
+  padding:15px;align-items:center;justify-content:center;
+}
+.modal.open {display:flex}
+.dialog {
+  width:min(800px,100%);max-height:92vh;overflow:auto;
+  background:var(--panel);border-radius:16px;padding:22px;
+}
+.dialog h2 {margin-top:0}
+.formgrid {display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.field {display:flex;flex-direction:column;gap:6px;min-width:0}
+.field label {font-size:13px;color:var(--muted)}
+.field input {width:100%}
+.full {grid-column:1/-1}
+.actions {justify-content:flex-end;margin-top:18px}
+.adminrow {
+  display:flex;align-items:center;gap:10px;padding:9px;
+  border:1px solid var(--line);border-radius:10px;margin-top:8px;
+}
+.adminrow .info {flex:1;min-width:0;overflow-wrap:anywhere}
+.adminlist {margin-top:14px}
+.hidden {display:none!important}
+.hint {font-size:12px;color:var(--muted);margin-top:10px}
+.empty {text-align:center;padding:30px;color:var(--muted)}
+@media(max-width:600px) {
+  header,main {padding-left:4%;padding-right:4%}
+  .formgrid {grid-template-columns:1fr}
+  .full {grid-column:auto}
+  .grid {grid-template-columns:repeat(auto-fill,minmax(155px,1fr))}
+  .card {padding:10px;gap:7px}
+  .ico {width:36px;height:36px}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="top">
+    <div>
+      <div class="brand">我的网址导航</div>
+      <div class="muted">V2.1 个人管理版 · 支持批量导入与原网站图标</div>
+    </div>
+    <div class="muted" id="clock"></div>
+  </div>
+  <div class="tools">
+    <input id="search" placeholder="搜索网站名称、网址或描述">
+    <select id="engine">
+      <option value="https://www.google.com/search?q=">Google</option>
+      <option value="https://www.bing.com/search?q=">Bing</option>
+      <option value="https://www.baidu.com/s?wd=">百度</option>
+      <option value="https://duckduckgo.com/?q=">DuckDuckGo</option>
+    </select>
+    <button class="primary" id="searchBtn">搜索</button>
+    <button id="themeBtn">深浅色</button>
+    <button id="adminBtn">⚙ 后台管理</button>
+  </div>
+</header>
+
+<main>
+  <div class="toolbar">
+    <div class="muted" id="count"></div>
+    <div class="muted">拖动网站卡片可调整顺序</div>
+  </div>
+  <div id="categories" class="chips"></div>
+  <div id="content"></div>
+</main>
+
+<div class="modal" id="modal">
+<div class="dialog">
+  <div class="top">
+    <h2 id="modalTitle">后台管理</h2>
+    <button id="closeBtn">关闭 ×</button>
+  </div>
+
+  <div id="homePanel">
+    <p class="muted">管理网站、导入书签、分类和备份数据。</p>
+    <div class="tools">
+      <button class="primary" id="addBtn">＋ 添加网站</button>
+      <button id="importBtn">导入已有网站</button>
+      <button id="jsonBtn">导出 JSON 备份</button>
+      <button id="csvBtn">导出 CSV</button>
+      <button id="catsBtn">分类管理</button>
+      <button id="restoreBtn">恢复默认网站</button>
+      <input class="hidden" type="file" id="fileInput"
+        accept=".json,.csv,.html,.htm">
+    </div>
+    <div class="hint">
+      支持浏览器书签 HTML、CSV 和 JSON。导入会跳过已存在的网址。
+      建议导入前先导出备份。
+    </div>
+    <div id="adminList" class="adminlist"></div>
+  </div>
+
+  <div id="editPanel" class="hidden">
+    <div class="formgrid">
+      <div class="field">
+        <label>网站名称 *</label>
+        <input id="fName" placeholder="例如：ChatGPT">
+      </div>
+      <div class="field">
+        <label>网站网址 *</label>
+        <input id="fUrl" placeholder="https://example.com">
+      </div>
+      <div class="field">
+        <label>分类</label>
+        <input id="fCategory" list="catOptions" placeholder="例如：AI 工具">
+        <datalist id="catOptions"></datalist>
+      </div>
+      <div class="field">
+        <label>自定义图标（可选）</label>
+        <input id="fIcon" placeholder="Emoji 或 https://图片地址">
+      </div>
+      <div class="field full">
+        <label>网站描述</label>
+        <input id="fDesc" placeholder="简单介绍这个网站">
+      </div>
+      <div class="field full">
+        <label>图标预览</label>
+        <div id="previewBox" style="display:flex;align-items:center;gap:12px">
+          <img id="preview" class="ico" alt="图标预览">
+          <span class="muted">留空将自动尝试获取网站图标。</span>
+        </div>
+      </div>
+    </div>
+    <div class="actions">
+      <button id="cancelEdit">取消</button>
+      <button class="primary" id="saveBtn">保存网站</button>
+    </div>
+  </div>
+
+  <div id="catPanel" class="hidden">
+    <div class="tools">
+      <input id="newCat" placeholder="输入新分类名称">
+      <button class="primary" id="addCatBtn">添加分类</button>
+    </div>
+    <div id="catList" class="adminlist"></div>
+    <div class="actions"><button id="backBtn">返回后台</button></div>
+  </div>
+</div>
+</div>
+
 <script>
-const defaults=[['Google','https://www.google.com','常用网站','🔎','全球搜索'],['Bing','https://www.bing.com','常用网站','🟦','微软搜索'],['YouTube','https://www.youtube.com','常用网站','▶️','在线视频'],['Gmail','https://mail.google.com','常用网站','✉️','邮件'],['ChatGPT','https://chatgpt.com','AI 工具','🤖','AI 助手'],['Claude','https://claude.ai','AI 工具','🧠','AI 助手'],['Gemini','https://gemini.google.com','AI 工具','✨','Google AI'],['Canva','https://www.canva.com','设计资源','🎨','在线设计'],['Alibaba','https://www.alibaba.com','外贸获客','🛒','B2B 外贸平台'],['Made-in-China','https://www.made-in-china.com','外贸获客','🌏','中国制造网'],['LinkedIn','https://www.linkedin.com','外贸获客','💼','商务社交'],['Google Maps','https://maps.google.com','外贸获客','📍','客户与公司查询'],['Pexels','https://www.pexels.com','设计资源','📷','免费图片'],['Unsplash','https://unsplash.com','设计资源','🖼️','高质量图片'],['Behance','https://www.behance.net','设计资源','🎨','设计作品'],['Adobe','https://www.adobe.com','设计资源','🔴','Adobe 创意工具'],['Smallpdf','https://smallpdf.com','在线工具','📄','PDF 工具'],['Notion','https://www.notion.so','在线工具','📝','笔记管理'],['TinyPNG','https://tinypng.com','在线工具','🖼️','图片压缩'],['GitHub','https://github.com','软件与开发','🐙','代码托管'],['Vercel','https://vercel.com','软件与开发','▲','网站部署'],['Cloudflare','https://www.cloudflare.com','软件与开发','☁️','DNS/CDN'],['Python','https://www.python.org','软件与开发','🐍','Python 官网'],['Wikipedia','https://www.wikipedia.org','学习与资讯','📚','百科'],['Google News','https://news.google.com','学习与资讯','📰','新闻资讯'],['Coursera','https://www.coursera.org','学习与资讯','🎓','在线课程'],['TED','https://www.ted.com','学习与资讯','🎤','演讲与学习']];
-const defaultCats=['常用网站','AI 工具','外贸获客','设计资源','在线工具','软件与开发','学习与资讯'];
-let sites=JSON.parse(localStorage.navV2Sites||'null')||defaults.map(x=>({name:x[0],url:x[1],category:x[2],icon:x[3],desc:x[4],custom:false}));let cats=JSON.parse(localStorage.navV2Cats||'null')||[...defaultCats];let fav=JSON.parse(localStorage.navV2Fav||'[]');let active='全部',edit=-1;
-const $=id=>document.getElementById(id);const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
-function save(){localStorage.navV2Sites=JSON.stringify(sites);localStorage.navV2Cats=JSON.stringify(cats);localStorage.navV2Fav=JSON.stringify(fav)}
-function render(){let cs=['全部','收藏',...cats.filter(x=>x!=='全部'&&x!=='收藏')];$('cats').innerHTML=cs.map(c=>`<button class="btn cat ${c===active?'active':''}" onclick="setCat('${esc(c)}')">${esc(c)}</button>`).join('');let groups={};sites.forEach((s,i)=>{if(active==='收藏'&&!fav.includes(i))return;if(active!=='全部'&&active!=='收藏'&&s.category!==active)return;(groups[s.category]??=[]).push([s,i])});$('main').innerHTML='';Object.entries(groups).forEach(([cat,arr])=>{let sec=document.createElement('section');sec.className='section';sec.innerHTML=`<h2>${esc(cat)} <span class="info">${arr.length}</span></h2><div class="grid"></div>`;let grid=sec.querySelector('.grid');arr.forEach(([s,i])=>grid.appendChild(card(s,i)));$('main').appendChild(sec)});if(!$('main').children.length)$('main').innerHTML='<div class="empty">暂无网站</div>';$('count').textContent=`网站：${sites.length}`;save()}
-function card(s,i){let d=document.createElement('div');d.className='card';d.draggable=true;d.dataset.i=i;let ic=s.icon||autoIcon(s.url);let visual=/^https?:\/\//i.test(ic)?`<img src="${esc(ic)}" onerror="this.parentElement.innerHTML='🌐'">`:esc(ic);d.innerHTML=`<button class="star">${fav.includes(i)?'★':'☆'}</button><a href="${safe(s.url)}" target="_blank" rel="noopener"><div class="top"><div class="icon">${visual}</div><div><h3>${esc(s.name)}</h3><p>${esc(s.desc)}</p></div></div></a><div class="actions"><button onclick="editSite(${i})">编辑</button><button onclick="del(${i})">删除</button></div>`;d.querySelector('.star').onclick=e=>{e.stopPropagation();fav.includes(i)?fav.splice(fav.indexOf(i),1):fav.push(i);render()};d.addEventListener('dragstart',()=>d.classList.add('drag'));d.addEventListener('dragend',()=>d.classList.remove('drag'));d.addEventListener('dragover',e=>e.preventDefault());d.addEventListener('drop',e=>{e.preventDefault();let from=+document.querySelector('.drag').dataset.i;if(from===i)return;let x=sites.splice(from,1)[0];sites.splice(i,0,x);fav=fav.map(n=>n===from?i:n===i?from:n);render()});return d}
-function safe(u){try{let x=new URL(u);return /^https?:$/.test(x.protocol)?esc(x.href):'#'}catch{return '#'}}function autoIcon(u){try{return 'https://www.google.com/s2/favicons?sz=128&domain='+new URL(u).hostname}catch{return '🌐'}}function setCat(x){active=x;render()}
-function fill(){ $('cat').innerHTML=cats.map(x=>`<option>${esc(x)}</option>`).join('') }
-function addSite(){edit=-1;$('siteTitle').textContent='添加网站';['name','url','icon','desc'].forEach(x=>$(x).value='');fill();show('siteModal')}
-function editSite(i){edit=i;let s=sites[i];$('siteTitle').textContent='编辑网站';fill();$('name').value=s.name;$('url').value=s.url;$('cat').value=s.category;$('icon').value=s.icon||'';$('desc').value=s.desc||'';show('siteModal')}
-function saveSite(){let n=$('name').value.trim(),u=$('url').value.trim();if(!n||!u)return alert('请填写名称和网址');if(!/^https?:\/\//i.test(u))u='https://'+u;let s={name:n,url:u,category:$('cat').value,icon:$('icon').value.trim()||autoIcon(u),desc:$('desc').value.trim(),custom:true};edit<0?sites.push(s):sites[edit]=s;closeM();render()}
-function del(i){if(confirm('确定删除 '+sites[i].name+' 吗？')){sites.splice(i,1);fav=fav.filter(x=>x!==i).map(x=>x>i?x-1:x);render()}}function show(id){$(id).classList.add('show')}function closeM(){$('siteModal').classList.remove('show')}function manage(){$('s1').textContent=sites.length;$('s2').textContent=cats.length;$('s3').textContent=fav.length;$('s4').textContent=sites.filter(x=>x.custom).length;$('bg').value=localStorage.navV2Bg||'';show('manageModal')}function closeManage(){$('manageModal').classList.remove('show')}
-function newCat(){let x=$('newCat').value.trim();if(x&&!cats.includes(x)){cats.push(x);$('newCat').value='';save();render();alert('分类已添加')}}function backup(){let blob=new Blob([JSON.stringify({version:'2.0',sites,cats,fav},null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='我的导航_V2.0_备份.json';a.click();URL.revokeObjectURL(a.href)}
-function restore(e){let f=e.target.files[0];if(!f)return;let r=new FileReader();r.onload=()=>{try{let d=JSON.parse(r.result);if(!Array.isArray(d.sites)||!Array.isArray(d.cats))throw 0;sites=d.sites;cats=d.cats;fav=Array.isArray(d.fav)?d.fav:[];save();render();alert('恢复成功')}catch{alert('备份文件格式不正确')}};r.readAsText(f)}
-function saveBg(){let x=$('bg').value.trim();if(x){localStorage.navV2Bg=x;applyBg(x)}else clearBg()}function clearBg(){localStorage.removeItem('navV2Bg');localStorage.removeItem('navV2BgData');document.body.style.backgroundImage='';document.body.classList.remove('bg')}function applyBg(x){document.body.style.backgroundImage=`url("${x.replaceAll('"','%22')}")`;document.body.classList.add('bg')}
-$('bgfile').onchange=e=>{let f=e.target.files[0];if(!f)return;if(f.size>3e6)return alert('建议背景图片不超过 3MB');let r=new FileReader();r.onload=()=>{localStorage.navV2BgData=r.result;localStorage.removeItem('navV2Bg');applyBg(r.result)};r.readAsDataURL(f)};
-function resetAll(){if(!confirm('确定恢复默认网站和分类？自定义内容会丢失。'))return;sites=defaults.map(x=>({name:x[0],url:x[1],category:x[2],icon:x[3],desc:x[4],custom:false}));cats=[...defaultCats];fav=[];save();render();closeManage()}
-function toggleDark(){document.body.classList.toggle('dark');localStorage.navV2Dark=document.body.classList.contains('dark')?'1':'0'}$('q').onkeydown=e=>{if(e.key==='Enter'){let q=e.target.value.trim();if(q)open(($('engine').value)+encodeURIComponent(q),'_blank')}};$('engine').value=localStorage.navV2Engine||'https://www.google.com/search?q=';$('engine').onchange=e=>localStorage.navV2Engine=e.target.value;
-function clock(){$('clock').textContent=new Date().toLocaleString('zh-CN',{hour12:false})}setInterval(clock,1000);clock();if(localStorage.navV2Dark==='1')document.body.classList.add('dark');let b=localStorage.navV2BgData||localStorage.navV2Bg;if(b)applyBg(b);render();
-if(navigator.geolocation){navigator.geolocation.getCurrentPosition(async p=>{try{let d=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${p.coords.latitude}&longitude=${p.coords.longitude}&current=temperature_2m&timezone=auto`).then(r=>r.json());$('weather').textContent=`天气：${d.current.temperature_2m}°C`}catch{$('weather').textContent='天气：获取失败'}},()=>{$('weather').textContent='天气：未授权'})}else $('weather').textContent='天气：不可用';
-</script></body></html>
+"use strict";
+
+const DEFAULT_CATEGORIES = [
+  "常用网站","AI 工具","外贸获客","设计资源",
+  "在线工具","软件与开发","学习与资讯"
+];
+
+const DEFAULT_SITES = [
+  ["Google","https://www.google.com","常用网站","搜索引擎"],
+  ["Bing","https://www.bing.com","常用网站","微软搜索引擎"],
+  ["YouTube","https://www.youtube.com","常用网站","视频平台"],
+  ["Gmail","https://mail.google.com","常用网站","电子邮件"],
+  ["ChatGPT","https://chatgpt.com","AI 工具","AI 助手"],
+  ["Claude","https://claude.ai","AI 工具","AI 助手"],
+  ["Gemini","https://gemini.google.com","AI 工具","Google AI 助手"],
+  ["Canva","https://www.canva.com","设计资源","在线设计"],
+  ["Alibaba.com","https://www.alibaba.com","外贸获客","国际 B2B 平台"],
+  ["Made-in-China","https://www.made-in-china.com","外贸获客","中国制造网"],
+  ["LinkedIn","https://www.linkedin.com","外贸获客","商务社交"],
+  ["Google Maps","https://maps.google.com","常用网站","地图"],
+  ["Pexels","https://www.pexels.com","设计资源","免费图片素材"],
+  ["Unsplash","https://unsplash.com","设计资源","图片素材"],
+  ["Behance","https://www.behance.net","设计资源","设计作品"],
+  ["Adobe","https://www.adobe.com","设计资源","创意软件"],
+  ["Smallpdf","https://smallpdf.com","在线工具","PDF 工具"],
+  ["Notion","https://www.notion.so","在线工具","笔记与协作"],
+  ["TinyPNG","https://tinypng.com","在线工具","图片压缩"],
+  ["GitHub","https://github.com","软件与开发","代码托管"],
+  ["Vercel","https://vercel.com","软件与开发","网站部署"],
+  ["Python","https://www.python.org","学习与资讯","Python 官网"],
+  ["Wikipedia","https://www.wikipedia.org","学习与资讯","百科全书"],
+  ["Coursera","https://www.coursera.org","学习与资讯","在线课程"]
+].map((a,i)=>({
+  id:"default-"+i, name:a[0],url:a[1],category:a[2],
+  desc:a[3],icon:"",favorite:false
+}));
+
+const SITE_KEY = "my_nav_v21_sites";
+const CAT_KEY = "my_nav_v21_categories";
+const THEME_KEY = "my_nav_v21_theme";
+
+function cloneDefaults(){
+  return DEFAULT_SITES.map(s=>({...s}));
+}
+function loadArray(key){
+  try {
+    const x=JSON.parse(localStorage.getItem(key));
+    return Array.isArray(x)?x:null;
+  } catch(e){ return null; }
+}
+let sites=loadArray(SITE_KEY) || cloneDefaults();
+let categories=loadArray(CAT_KEY) || [...DEFAULT_CATEGORIES];
+let activeCat="全部";
+let editingId=null;
+let dragId=null;
+
+function saveData(){
+  try {
+    localStorage.setItem(SITE_KEY,JSON.stringify(sites));
+    localStorage.setItem(CAT_KEY,JSON.stringify(categories));
+  } catch(e) {
+    alert("保存失败，可能是浏览器存储空间不足。请导出备份，并减少过大的自定义图片。");
+  }
+}
+function esc(s=""){
+  return String(s).replace(/[&<>"']/g,c=>({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+  })[c]);
+}
+function validUrl(value){
+  try {
+    const u=new URL(value);
+    return ["http:","https:"].includes(u.protocol)?u.href:null;
+  } catch(e){return null;}
+}
+function hostOf(url){
+  try{return new URL(url).hostname;}catch(e){return "";}
+}
+function favicon(url){
+  const h=hostOf(url);
+  return h ? "https://www.google.com/s2/favicons?domain="+encodeURIComponent(h)+"&sz=128" : "";
+}
+function isImageUrl(value){
+  return /^https?:\/\//i.test(value||"");
+}
+function iconHtml(site){
+  if(site.icon && isImageUrl(site.icon)){
+    return `<img class="ico" loading="lazy" src="${esc(site.icon)}"
+      alt="" data-fallback="${esc(favicon(site.url))}">`;
+  }
+  if(site.icon){
+    return `<div class="ico emoji">${esc(site.icon)}</div>`;
+  }
+  return `<img class="ico" loading="lazy" src="${esc(favicon(site.url))}"
+    alt="" data-fallback="${esc("https://"+hostOf(site.url)+"/favicon.ico")}">`;
+}
+function attachIconFallback(root){
+  root.querySelectorAll("img[data-fallback]").forEach(img=>{
+    img.onerror=()=>{
+      const fallback=img.dataset.fallback;
+      if(fallback && img.src!==fallback){
+        img.dataset.fallback="";
+        img.src=fallback;
+      } else {
+        img.style.visibility="hidden";
+      }
+    };
+  });
+}
+function renderCategories(){
+  const visibleCats=["全部","收藏",...categories];
+  document.getElementById("categories").innerHTML=visibleCats.map(c=>
+    `<button class="chip ${activeCat===c?"active":""}" data-cat="${esc(c)}">${esc(c)}</button>`
+  ).join("");
+  document.querySelectorAll("[data-cat]").forEach(btn=>{
+    btn.onclick=()=>{activeCat=btn.dataset.cat;render();}
+  });
+}
+function render(){
+  const q=document.getElementById("search").value.trim().toLowerCase();
+  const filtered=sites.filter(s=>{
+    const catOk=activeCat==="全部" ||
+      (activeCat==="收藏" && s.favorite) || s.category===activeCat;
+    const text=[s.name,s.url,s.desc,s.category].join(" ").toLowerCase();
+    return catOk && (!q || text.includes(q));
+  });
+  const groups={};
+  filtered.forEach(s=>(groups[s.category||"未分类"] ||= []).push(s));
+  let html="";
+  Object.entries(groups).forEach(([cat,items])=>{
+    html+=`<section class="section"><h2>${esc(cat)} <span class="muted">(${items.length})</span></h2><div class="grid">`;
+    items.forEach(s=>{
+      html+=`<div class="card" draggable="true" data-card="${esc(s.id)}">
+        <a href="${esc(s.url)}" target="_blank" rel="noopener noreferrer">
+          ${iconHtml(s)}
+          <div class="info"><div class="name">${esc(s.name)}</div>
+          <div class="desc">${esc(s.desc||hostOf(s.url))}</div></div>
+        </a>
+        <button class="star" data-star="${esc(s.id)}" title="收藏/取消收藏">${s.favorite?"★":"☆"}</button>
+      </div>`;
+    });
+    html+="</div></section>";
+  });
+  document.getElementById("content").innerHTML=html ||
+    '<div class="empty">没有找到网站。请尝试其他关键词，或在后台添加网站。</div>';
+  document.getElementById("count").textContent=`显示 ${filtered.length} / ${sites.length} 个网站`;
+  attachIconFallback(document.getElementById("content"));
+  document.querySelectorAll("[data-star]").forEach(btn=>{
+    btn.onclick=()=>{
+      const s=sites.find(x=>x.id===btn.dataset.star);
+      if(s){s.favorite=!s.favorite;saveData();render();}
+    };
+  });
+  document.querySelectorAll("[data-card]").forEach(card=>{
+    card.addEventListener("dragstart",e=>{
+      dragId=card.dataset.card;
+      e.dataTransfer.setData("text/plain",dragId);
+    });
+    card.addEventListener("dragover",e=>e.preventDefault());
+    card.addEventListener("drop",e=>{
+      e.preventDefault();
+      const target=card.dataset.card;
+      if(!dragId || dragId===target)return;
+      const from=sites.findIndex(s=>s.id===dragId);
+      const to=sites.findIndex(s=>s.id===target);
+      if(from<0||to<0)return;
+      const moved=sites.splice(from,1)[0];
+      sites.splice(to,0,moved);
+      saveData();render();
+    });
+  });
+  renderCategories();
+}
+
+const modal=document.getElementById("modal");
+const homePanel=document.getElementById("homePanel");
+const editPanel=document.getElementById("editPanel");
+const catPanel=document.getElementById("catPanel");
+
+function showPanel(which){
+  homePanel.classList.toggle("hidden",which!=="home");
+  editPanel.classList.toggle("hidden",which!=="edit");
+  catPanel.classList.toggle("hidden",which!=="cats");
+  document.getElementById("modalTitle").textContent=
+    which==="edit"?(editingId?"编辑网站":"添加网站"):
+    which==="cats"?"分类管理":"后台管理";
+  if(which==="home")renderAdmin();
+  if(which==="cats")renderCatAdmin();
+}
+function openAdmin(){
+  modal.classList.add("open");
+  showPanel("home");
+}
+function renderAdmin(){
+  const list=document.getElementById("adminList");
+  list.innerHTML=sites.map(s=>`<div class="adminrow">
+    ${iconHtml(s)}
+    <div class="info"><strong>${esc(s.name)}</strong><br>
+    <span class="muted">${esc(s.category)} · ${esc(s.url)}</span></div>
+    <button data-edit="${esc(s.id)}">编辑</button>
+    <button data-delete="${esc(s.id)}">删除</button>
+  </div>`).join("") || '<div class="empty">暂无网站</div>';
+  attachIconFallback(list);
+  list.querySelectorAll("[data-edit]").forEach(b=>b.onclick=()=>editSite(b.dataset.edit));
+  list.querySelectorAll("[data-delete]").forEach(b=>b.onclick=()=>{
+    const s=sites.find(x=>x.id===b.dataset.delete);
+    if(s&&confirm("确定删除网站："+s.name+"？")){
+      sites=sites.filter(x=>x.id!==s.id);
+      saveData();render();renderAdmin();
+    }
+  });
+}
+function editSite(id=null){
+  editingId=id;
+  const s=sites.find(x=>x.id===id) || {
+    name:"",url:"https://",category:activeCat!=="全部"&&activeCat!=="收藏"?activeCat:(categories[0]||"常用网站"),
+    icon:"",desc:"",favorite:false
+  };
+  document.getElementById("fName").value=s.name||"";
+  document.getElementById("fUrl").value=s.url||"";
+  document.getElementById("fCategory").value=s.category||"常用网站";
+  document.getElementById("fIcon").value=s.icon||"";
+  document.getElementById("fDesc").value=s.desc||"";
+  document.getElementById("catOptions").innerHTML=categories.map(c=>`<option value="${esc(c)}"></option>`).join("");
+  updatePreview();
+  showPanel("edit");
+}
+function updatePreview(){
+  const url=validUrl(document.getElementById("fUrl").value.trim());
+  const icon=document.getElementById("fIcon").value.trim();
+  const box=document.getElementById("previewBox");
+  const old=box.querySelector(".previewEmoji");
+  if(old)old.remove();
+  const img=document.getElementById("preview");
+  if(icon && !isImageUrl(icon)){
+    img.classList.add("hidden");
+    const span=document.createElement("span");
+    span.className="previewEmoji";
+    span.style.fontSize="30px";
+    span.textContent=icon;
+    box.prepend(span);
+  } else {
+    img.classList.remove("hidden");
+    img.src=icon || (url?favicon(url):"");
+  }
+}
+document.getElementById("fUrl").addEventListener("input",updatePreview);
+document.getElementById("fIcon").addEventListener("input",updatePreview);
+
+document.getElementById("saveBtn").onclick=()=>{
+  const name=document.getElementById("fName").value.trim();
+  const url=validUrl(document.getElementById("fUrl").value.trim());
+  const category=document.getElementById("fCategory").value.trim()||"未分类";
+  const icon=document.getElementById("fIcon").value.trim();
+  const desc=document.getElementById("fDesc").value.trim();
+  if(!name||!url){alert("请填写网站名称和有效的 http/https 网址。");return;}
+  if(icon && isImageUrl(icon) && !validUrl(icon)){alert("图标网址无效。");return;}
+  if(!categories.includes(category))categories.push(category);
+  const duplicate=sites.find(s=>s.id!==editingId && s.url.replace(/\/+$/,"")===url.replace(/\/+$/,""));
+  if(duplicate){alert("该网址已经存在，请编辑已有项目。");return;}
+  if(editingId){
+    const i=sites.findIndex(s=>s.id===editingId);
+    if(i>=0)sites[i]={...sites[i],name,url,category,icon,desc};
+  } else {
+    sites.push({id:"site-"+Date.now()+"-"+Math.random().toString(36).slice(2,7),name,url,category,icon,desc,favorite:false});
+  }
+  saveData();render();showPanel("home");
+};
+document.getElementById("adminBtn").onclick=openAdmin;
+document.getElementById("addBtn").onclick=()=>editSite();
+document.getElementById("closeBtn").onclick=()=>modal.classList.remove("open");
+document.getElementById("cancelEdit").onclick=()=>showPanel("home");
+document.getElementById("catsBtn").onclick=()=>showPanel("cats");
+document.getElementById("backBtn").onclick=()=>showPanel("home");
+document.getElementById("addCatBtn").onclick=()=>{
+  const input=document.getElementById("newCat");
+  const name=input.value.trim();
+  if(!name){alert("请输入分类名称。");return;}
+  if(categories.includes(name)){alert("该分类已存在。");return;}
+  categories.push(name);input.value="";saveData();render();renderCatAdmin();
+};
+function renderCatAdmin(){
+  const list=document.getElementById("catList");
+  list.innerHTML=categories.map(c=>`<div class="adminrow">
+    <div class="info"><strong>${esc(c)}</strong><br><span class="muted">${sites.filter(s=>s.category===c).length} 个网站</span></div>
+    <button data-rename="${esc(c)}">重命名</button>
+    <button data-cdel="${esc(c)}">删除</button>
+  </div>`).join("");
+  list.querySelectorAll("[data-rename]").forEach(b=>b.onclick=()=>{
+    const old=b.dataset.rename;
+    const value=prompt("请输入新分类名称",old);
+    if(!value||!value.trim())return;
+    const n=value.trim();
+    if(n!==old&&categories.includes(n)){alert("分类已存在。");return;}
+    categories=categories.map(c=>c===old?n:c);
+    sites.forEach(s=>{if(s.category===old)s.category=n;});
+    if(activeCat===old)activeCat=n;
+    saveData();render();renderCatAdmin();
+  });
+  list.querySelectorAll("[data-cdel]").forEach(b=>b.onclick=()=>{
+    const c=b.dataset.cdel;
+    if(!confirm("删除分类“"+c+"”？分类下的网站将移到“未分类”。"))return;
+    categories=categories.filter(x=>x!==c);
+    sites.forEach(s=>{if(s.category===c)s.category="未分类";});
+    if(activeCat===c)activeCat="全部";
+    saveData();render();renderCatAdmin();
+  });
+}
+
+// CSV 解析器：支持带引号的逗号、双引号和换行。
+function parseCSV(text){
+  const rows=[];let row=[],cell="",quoted=false;
+  for(let i=0;i<text.length;i++){
+    const c=text[i];
+    if(c==='"'&&quoted&&text[i+1]==='"'){cell+='"';i++;}
+    else if(c==='"')quoted=!quoted;
+    else if(c===","&&!quoted){row.push(cell);cell="";}
+    else if((c==="\n"||c==="\r")&&!quoted){
+      if(c==="\r"&&text[i+1]==="\n")i++;
+      row.push(cell);rows.push(row);row=[];cell="";
+    } else cell+=c;
+  }
+  if(cell.length||row.length){row.push(cell);rows.push(row);}
+  return rows;
+}
+function normalizeImport(row){
+  return {
+    name:String(row.name||row.title||row["名称"]||row["网站名称"]||"").trim(),
+    url:String(row.url||row.href||row["网址"]||row["链接"]||"").trim(),
+    category:String(row.category||row["分类"]||"导入网站").trim()||"导入网站",
+    icon:String(row.icon||row.logo||row["图标"]||"").trim(),
+    desc:String(row.desc||row.description||row["描述"]||"").trim(),
+    favorite:!!row.favorite
+  };
+}
+async function importFile(file){
+  const text=await file.text();
+  let rows=[];
+  const lower=file.name.toLowerCase();
+  if(lower.endsWith(".html")||lower.endsWith(".htm")){
+    const doc=new DOMParser().parseFromString(text,"text/html");
+    doc.querySelectorAll("a[href]").forEach(a=>{
+      const url=validUrl(a.getAttribute("href")||"");
+      if(url){
+        rows.push({name:a.textContent.trim()||hostOf(url),url,category:"导入书签",icon:"",desc:""});
+      }
+    });
+  } else if(lower.endsWith(".csv")){
+    const parsed=parseCSV(text);
+    if(parsed.length){
+      const headers=parsed[0].map(x=>x.trim().toLowerCase());
+      const known=["name","名称","网站名称","title","url","网址","链接"];
+      const hasHeader=headers.some(h=>known.includes(h));
+      if(hasHeader){
+        rows=parsed.slice(1).map(r=>{
+          const obj={};
+          headers.forEach((h,i)=>obj[h]=r[i]||"");
+          return normalizeImport(obj);
+        });
+      } else {
+        rows=parsed.map(r=>normalizeImport({
+          name:r[0],url:r[1],category:r[2],icon:r[3],desc:r[4]
+        }));
+      }
+    }
+  } else {
+    const data=JSON.parse(text);
+    const arr=Array.isArray(data)?data:(data.sites||data.websites||data.bookmarks||[]);
+    if(!Array.isArray(arr))throw new Error("JSON 网站列表格式不正确");
+    rows=arr.map(normalizeImport);
+    if(data.categories&&Array.isArray(data.categories)){
+      data.categories.forEach(c=>{
+        if(typeof c==="string"&&!categories.includes(c))categories.push(c);
+      });
+    }
+  }
+
+  let added=0,skipped=0;
+  rows.forEach(row=>{
+    const url=validUrl(row.url);
+    if(!url||!row.name.trim()){skipped++;return;}
+    const exists=sites.some(s=>s.url.replace(/\/+$/,"")===url.replace(/\/+$/,""));
+    if(exists){skipped++;return;}
+    const category=row.category||"导入网站";
+    if(!categories.includes(category))categories.push(category);
+    sites.push({
+      id:"import-"+Date.now()+"-"+Math.random().toString(36).slice(2,8),
+      ...row,url,category,favorite:!!row.favorite
+    });
+    added++;
+  });
+  saveData();render();renderAdmin();
+  alert(`导入完成！\n新增：${added} 个\n跳过重复或无效项目：${skipped} 个`);
+}
+document.getElementById("importBtn").onclick=()=>document.getElementById("fileInput").click();
+document.getElementById("fileInput").onchange=async e=>{
+  const file=e.target.files[0];
+  if(!file)return;
+  try{await importFile(file);}
+  catch(err){alert("导入失败，请检查文件格式。支持 JSON、CSV 或浏览器书签 HTML。");}
+  e.target.value="";
+};
+
+function downloadFile(name,content,type){
+  const blob=new Blob(["\ufeff",content],{type});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");
+  a.href=url;a.download=name;a.click();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+document.getElementById("jsonBtn").onclick=()=>{
+  downloadFile("我的网址导航备份.json",JSON.stringify({
+    version:"2.1",exportedAt:new Date().toISOString(),categories,sites
+  },null,2),"application/json;charset=utf-8");
+};
+function csvCell(v){return '"'+String(v||"").replace(/"/g,'""')+'"';}
+document.getElementById("csvBtn").onclick=()=>{
+  const header=["名称","网址","分类","图标","描述"];
+  const rows=sites.map(s=>[s.name,s.url,s.category,s.icon,s.desc].map(csvCell).join(","));
+  downloadFile("我的网址导航.csv",[header.join(","),...rows].join("\r\n"),"text/csv;charset=utf-8");
+};
+document.getElementById("restoreBtn").onclick=()=>{
+  if(!confirm("恢复默认网站将替换当前网站列表。建议先导出 JSON 备份。确定继续吗？"))return;
+  sites=cloneDefaults();
+  categories=[...DEFAULT_CATEGORIES];
+  activeCat="全部";saveData();render();renderAdmin();
+};
+
+document.getElementById("search").addEventListener("input",render);
+document.getElementById("searchBtn").onclick=()=>{
+  const q=document.getElementById("search").value.trim();
+  if(q)window.open(document.getElementById("engine").value+encodeURIComponent(q),"_blank","noopener");
+};
+document.getElementById("search").addEventListener("keydown",e=>{
+  if(e.key==="Enter")document.getElementById("searchBtn").click();
+});
+document.getElementById("themeBtn").onclick=()=>{
+  document.body.classList.toggle("dark");
+  localStorage.setItem(THEME_KEY,document.body.classList.contains("dark")?"dark":"light");
+};
+if(localStorage.getItem(THEME_KEY)==="dark")document.body.classList.add("dark");
+
+function updateClock(){
+  document.getElementById("clock").textContent=new Date().toLocaleString("zh-CN",{hour12:false});
+}
+updateClock();setInterval(updateClock,1000);
+render();
+</script>
+</body>
+</html>
